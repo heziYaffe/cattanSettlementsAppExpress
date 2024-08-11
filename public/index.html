@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Socket.IO chat</title>
+  <script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
+  <script>
+    var socket = io();
+
+    window.onload = function() {
+      var form = document.getElementById('form');
+      var input = document.getElementById('m');
+      var select = document.getElementById('target');
+
+      form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        if (input.value) {
+          socket.emit('message', { message: input.value, targetId: select.value });
+          input.value = '';
+        }
+      });
+
+      socket.on('message', function(msg) {
+        var item = document.createElement('li');
+        item.textContent = msg;
+        document.getElementById('messages').appendChild(item);
+        window.scrollTo(0, document.body.scrollHeight);
+      });
+
+      socket.on('your id', function(id) {
+        document.getElementById('yourId').textContent = 'Your ID: ' + id;
+      });
+
+      socket.on('all ids', function(ids) {
+        select.innerHTML = '<option value="broadcast">Broadcast</option>';
+        ids.forEach(function(id) {
+          var option = document.createElement('option');
+          option.value = id;
+          option.textContent = id;
+          select.appendChild(option);
+        });
+      });
+    }
+  </script>
+</head>
+<body>
+  <span id="yourId"></span>
+  <ul id="messages"></ul>
+  <form id="form">
+    <select id="target">
+      <option value="broadcast">Broadcast</option>
+    </select>
+    <input id="m" autocomplete="off" /><button>Send</button>
+  </form>
+</body>
+</html>
